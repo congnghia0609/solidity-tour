@@ -1,0 +1,29 @@
+{
+  "name": "solidity-tour",
+  "version": "1.0.0",
+  "description": "solidity-tour is a cheat sheet, quick reference to learn solidity programming",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/congnghia0609/solidity-tour.git"
+  },
+  "keywords": [
+    "solidity",
+    "truffle",
+    "dapp",
+    "smart-contract",
+    "cheat-sheet"
+  ],
+  "author": "nghiatc",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/congnghia0609/solidity-tour/issues"
+  },
+  "homepage": "https://github.com/congnghia0609/solidity-tour#readme"
+}
