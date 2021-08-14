@@ -117,8 +117,92 @@ if (x.balance < 10 && myAddress.balance >= 10) x.transfer(10);
 
 
 // 3.5. Fixed-size byte arrays
+bytes1, bytes2, bytes3, ..., bytes32
 
 
+// 3.6. Dynamically-sized byte array
+bytes b; // Dynamically-sized byte array
+string s; // Dynamically-sized UTF-8-encoded string
+
+
+// 3.7. String Literals and Types
+string s1 = "foo";
+string s2 = 'bar';
+string s3 = "foo" "bar"; // == "foobar"
+
+//// escape characters:
+/**
+\<newline> (escapes an actual newline)
+\\ (backslash)
+\' (single quote)
+\" (double quote)
+\n (newline)
+\r (carriage return)
+\t (tab)
+\xNN (hex escape, see below)
+\uNNNN (unicode escape, see below)
+*/
+
+
+// 3.8. Unicode Literals
+string memory a = unicode"Hello 😃";
+
+
+// 3.9. Hexadecimal Literals
+string h1 = hex"001122FF";
+string h2 = hex'0011_22_FF';
+string s3 = hex"00112233" hex"44556677"; // == hex"0011223344556677"
+
+
+// 3.10. Reference Types
+//// Reference Types là các kiểu tham chiếu mà giá trị sẽ được thay đổi thông qua nhiều cái tên khác nhau. 
+//// Các kiểu tham chiếu bao gồm: struct, array, map.
+
+// 3.10.1. Data location
+//// Có 3 loại vị trí dữ liệu: memory, storage và calldata.
+/**
+memory : tồn tại ở tầm vực hàm function.
+storage : tồn tại ở tầm vực contract.
+calldata : tồn tại ở tham số của hàm function arguments.
+*/
+
+// Data location and assignment behaviour
+/**
+- Phép gán giữa storage và memory (hoặc calldata) luôn tạo 1 bản sao độc lập.
+- Phép gán từ memory đến memory tạo ra 1 tham chiếu.
+- Phép gán từ storage đến local storage variable tạo ra 1 tham chiếu.
+- Phép gán từ những cái khác đến storage luôn tạo 1 bản sao độc lập.
+*/
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.5.0 <0.9.0;
+
+contract C {
+    // The data location of x is storage.
+    // This is the only place where the
+    // data location can be omitted.
+    uint[] x;
+
+    // The data location of memoryArray is memory.
+    function f(uint[] memory memoryArray) public {
+        x = memoryArray; // works, copies the whole array to storage
+        uint[] storage y = x; // works, assigns a pointer, data location of y is storage
+        y[7]; // fine, returns the 8th element
+        y.pop(); // fine, modifies x through y
+        delete x; // fine, clears the array, also modifies y
+        // The following does not work; it would need to create a new temporary /
+        // unnamed array in storage, but storage is "statically" allocated:
+        // y = memoryArray;
+        // This does not work either, since it would "reset" the pointer, but there
+        // is no sensible location it could point to.
+        // delete y;
+        g(x); // calls g, handing over a reference to x
+        h(x); // calls h and creates an independent, temporary copy in memory
+    }
+
+    function g(uint[] storage) internal pure {}
+    function h(uint[] memory) public pure {}
+}
 ```
 
 ### 4. Operators
