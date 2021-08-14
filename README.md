@@ -207,7 +207,56 @@ contract C {
 
 ### 4. Operators
 ```go
+/**
+Logical: !, &&, ||, ==, !=
+Comparisons: <=, <, ==, !=, >=, >
+Bit operators: &, |, ^ (xor), ~ (Đảo bít)
+Shift operators: << (left shift), >> (right shift)
+Arithmetic operators: +, -, *, /, % (modulo), ** (exponentiation - lũy thừa)
 
+Operators Involving LValues: +=, -=, *=, /=, %=, |=, &= and ^=
+a += e <==> a = a + e
+a++ <==> a += 1
+a-- <==> a-= 1
+++a // tăng giá trị của a thêm 1 trước khi thực hiện hành động khác
+--a // giảm giá trị của a xuống 1 trước khi thực hiện hành động khác
+
+delete a // gán 1 giá trị khởi tạo của kiểu dữ liệu của biến cho a.
+*/
+
+// Division
+int256(-5) / int256(2) == int256(-2)
+
+// Modulo
+int256(5) % int256(2) == int256(1)
+int256(5) % int256(-2) == int256(1)
+int256(-5) % int256(2) == int256(-1)
+int256(-5) % int256(-2) == int256(-1)
+
+// Exponentiation
+0**0 == 1
+Thay vì dùng x**3 thì dùng x*x*x chi phí rẻ hơn.
+
+// delete
+//// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.4.0 <0.9.0;
+
+contract DeleteExample {
+    uint data;
+    uint[] dataArray;
+
+    function f() public {
+        uint x = data;
+        delete x; // sets x to 0, does not affect data
+        delete data; // sets data to 0, does not affect x
+        uint[] storage y = dataArray;
+        delete dataArray; // this sets dataArray.length to zero, but as uint[] is a complex object, also
+        // y is affected which is an alias to the storage object
+        // On the other hand: "delete y" is not valid, as assignments to local variables
+        // referencing storage objects can only be made from existing storage objects.
+        assert(y.length == 0);
+    }
+}
 ```
 
 ### 5. Data Structure
