@@ -235,7 +235,7 @@ int256(-5) % int256(-2) == int256(-1)
 
 // Exponentiation
 0**0 == 1
-Thay vì dùng x**3 thì dùng x*x*x chi phí rẻ hơn.
+// Thay vì dùng x**3 thì dùng x*x*x chi phí rẻ hơn.
 
 // delete
 //// SPDX-License-Identifier: GPL-3.0
@@ -261,15 +261,256 @@ contract DeleteExample {
 
 ### 5. Data Structure
 ```go
+// 5.1. Enum
+//// Enum không thể có nhiều hơn 256 thành phần. Thứ tự các options của Enum là số nguyên không dấu bắt đầu từ 0.
+enum State { Created, Locked, Inactive } // Enum
+State constant defaultState = State.Inactive;
+
+
+// 5.2. Array
+//// Array có thể có kích thước cố định trong thời gian biên dịch hoặc chúng có thể có kích thước động.
+//// Array có kích thước cố định k khi khai báo: a[k]
+//// Array có kích thước động khi khai báo: a[]
+uint[][] memory X = new uint[][5] // Khai báo 1 mảng chứa 5 mảng động. Cách khai báo ngược so với 1 số ngôn ngữ khác.
+//// Chỉ mục mảng bắt đầu từ 0 và được truy suất ngược với khai báo.
+X[2][6] // Truy suất đến phần tử thứ 7 trong mảng động thứ 3.
+X[2] // Truy suất đến toàn bộ mảng động thứ 3.
+//// Các phần tử của mảng có thể là 1 kiểu bất kỳ, bao gồm: map và struct.
+//// Các kiểu bytes và string là các kiểu đặc biệt của array.
+
+// a) Allocating Memory Arrays
+//// Cấp phát mảng động bằng toán tử new
+function f(uint len) public pure {
+    uint[] memory a = new uint[](7);
+    bytes memory b = new bytes(len);
+    assert(a.length == 7);
+    assert(b.length == len);
+    a[6] = 8;
+}
+//// Không thể gán các mảng bộ nhớ có kích thước cố định (memory arrays) cho các mảng bộ nhớ có kích thước động (dynamically-sized memory arrays).
+uint[] memory x = [uint(1), 3, 4]; // ==> Error: uint[3] memory cannot be converted to uint[] memory.
+//// Nếu bạn muốn khởi tạo mảng có kích thước động, bạn phải gán các phần tử riêng lẻ:
+uint[] memory x = new uint[](3); // Cấp phát mảng động có kích thước là 3.
+x[0] = 1;
+x[1] = 3;
+x[2] = 4;
+
+
+// b) Array Members : Các phương thức áp dụng cho Dynamic storage arrays và bytes.
+/**
+length : chiều dài mảng.
+push() : Thêm 1 phần tử có giá trị khởi tạo của kiểu và cuối mảng, trả về tham chiếu đến phần tử đó. Nên có thể được dùng như sau: x.push().t = 2 hoặc x.push() = b
+push(x) : Thêm phần tử x vào cuối mảng, không trả về gì cả.
+pop : Dùng để xóa phần tử ở cuối mảng.
+*/
+
+
+// c) Array Slices
+//// x[start:end] khi phần tử đầu tiên là x[start], còn phần tử cuối là x[end - 1]. start mặc định là 0, end mặc định là chiều dài mảng.
+x[4:] // mảng từ phần tử thứ 4 đến cuối mảng.
+x[:4] // mảng từ đầu mảng đến phần tử thứ 4.
+
+
+
+// 5.3. Mapping Types
+//// syntax: mapping(_KeyType => _ValueType)
+//// _KeyType là các kiểu nguyên thủy, bytes, string, contract hoặc enum.
+//// _ValueType là một kiểu bất kỳ, bao gồm: map, array, struct. 
+
+// Map chỉ được lưu trữ ở dạng storage, được dùng để lưu trữ trạng thái (state), kiểu tham chiếu storage trong hàm hoặc tham số của các thư viện hàm.
+// Map không được sử dụng làm tham số hoặc giá trị trả về của các hàm trong contract được công khai (public). Điều này cũng áp dụng cho array và struct có chứa map.
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.4.22 <0.9.0;
+
+contract MappingExample {
+
+    mapping (address => uint256) private _balances;
+    mapping (address => mapping (address => uint256)) private _allowances;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+        _transfer(sender, recipient, amount);
+        approve(sender, msg.sender, amount);
+        return true;
+    }
+
+    function approve(address owner, address spender, uint256 amount) public returns (bool) {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+        return true;
+    }
+
+    function _transfer(address sender, address recipient, uint256 amount) internal {
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
+
+        _balances[sender] -= amount;
+        _balances[recipient] += amount;
+        emit Transfer(sender, recipient, amount);
+    }
+}
+
+// a) Iterable Mappings
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.6.8 <0.9.0;
+
+struct IndexValue { uint keyIndex; uint value; }
+struct KeyFlag { uint key; bool deleted; }
+
+struct itmap {
+    mapping(uint => IndexValue) data;
+    KeyFlag[] keys;
+    uint size;
+}
+
+library IterableMapping {
+    function insert(itmap storage self, uint key, uint value) internal returns (bool replaced) {
+        uint keyIndex = self.data[key].keyIndex;
+        self.data[key].value = value;
+        if (keyIndex > 0)
+            return true;
+        else {
+            keyIndex = self.keys.length;
+            self.keys.push();
+            self.data[key].keyIndex = keyIndex + 1;
+            self.keys[keyIndex].key = key;
+            self.size++;
+            return false;
+        }
+    }
+
+    function remove(itmap storage self, uint key) internal returns (bool success) {
+        uint keyIndex = self.data[key].keyIndex;
+        if (keyIndex == 0)
+            return false;
+        delete self.data[key];
+        self.keys[keyIndex - 1].deleted = true;
+        self.size --;
+    }
+
+    function contains(itmap storage self, uint key) internal view returns (bool) {
+        return self.data[key].keyIndex > 0;
+    }
+
+    function iterate_start(itmap storage self) internal view returns (uint keyIndex) {
+        return iterate_next(self, type(uint).max);
+    }
+
+    function iterate_valid(itmap storage self, uint keyIndex) internal view returns (bool) {
+        return keyIndex < self.keys.length;
+    }
+
+    function iterate_next(itmap storage self, uint keyIndex) internal view returns (uint r_keyIndex) {
+        keyIndex++;
+        while (keyIndex < self.keys.length && self.keys[keyIndex].deleted)
+            keyIndex++;
+        return keyIndex;
+    }
+
+    function iterate_get(itmap storage self, uint keyIndex) internal view returns (uint key, uint value) {
+        key = self.keys[keyIndex].key;
+        value = self.data[key].value;
+    }
+}
+
+// How to use it
+contract User {
+    // Just a struct holding our data.
+    itmap data;
+    // Apply library functions to the data type.
+    using IterableMapping for itmap;
+
+    // Insert something
+    function insert(uint k, uint v) public returns (uint size) {
+        // This calls IterableMapping.insert(data, k, v)
+        data.insert(k, v);
+        // We can still access members of the struct,
+        // but we should take care not to mess with them.
+        return data.size;
+    }
+
+    // Computes the sum of all stored data.
+    function sum() public view returns (uint s) {
+        for (
+            uint i = data.iterate_start();
+            data.iterate_valid(i);
+            i = data.iterate_next(i)
+        ) {
+            (, uint value) = data.iterate_get(i);
+            s += value;
+        }
+    }
+}
+
+
+
+// 5.4. Structs
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.6.0 <0.9.0;
+
+// Defines a new type with two fields.
+// Declaring a struct outside of a contract allows
+// it to be shared by multiple contracts.
+// Here, this is not really needed.
+struct Funder {
+    address addr;
+    uint amount;
+}
+
+contract CrowdFunding {
+    // Structs can also be defined inside contracts, which makes them
+    // visible only there and in derived contracts.
+    struct Campaign {
+        address payable beneficiary;
+        uint fundingGoal;
+        uint numFunders;
+        uint amount;
+        mapping (uint => Funder) funders;
+    }
+
+    uint numCampaigns;
+    mapping (uint => Campaign) campaigns;
+
+    function newCampaign(address payable beneficiary, uint goal) public returns (uint campaignID) {
+        campaignID = numCampaigns++; // campaignID is return variable
+        // We cannot use "campaigns[campaignID] = Campaign(beneficiary, goal, 0, 0)"
+        // because the right hand side creates a memory-struct "Campaign" that contains a mapping.
+        Campaign storage c = campaigns[campaignID];
+        c.beneficiary = beneficiary;
+        c.fundingGoal = goal;
+    }
+
+    function contribute(uint campaignID) public payable {
+        Campaign storage c = campaigns[campaignID];
+        // Creates a new temporary memory struct, initialised with the given values
+        // and copies it over to storage.
+        // Note that you can also use Funder(msg.sender, msg.value) to initialise.
+        c.funders[c.numFunders++] = Funder({addr: msg.sender, amount: msg.value});
+        c.amount += msg.value;
+    }
+
+    function checkGoalReached(uint campaignID) public returns (bool reached) {
+        Campaign storage c = campaigns[campaignID];
+        if (c.amount < c.fundingGoal)
+            return false;
+        uint amount = c.amount;
+        c.amount = 0;
+        c.beneficiary.transfer(amount);
+        return true;
+    }
+}
 
 ```
 
-### 6. Loop
-```go
 
-```
-
-### 7. Function
-```go
-
-```
