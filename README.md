@@ -89,31 +89,44 @@ int max = type(x).max;
 
 // 3.3. Address - có 2 loại.
 // address : Giữ một giá trị 20 byte = kích thước của Ethereum address.
-// address payable : Giống với address, nhưng có thêm 2 thuộc tính là: transfer và send. ==> với address payable có ý nghĩa là địa chỉ mà bạn có thể gửi Ether đến, còn address thì không.
+// address payable : Giống với address, nhưng có thêm 2 thuộc tính là: 
+// transfer và send. ==> với address payable có ý nghĩa là địa chỉ mà 
+// bạn có thể gửi Ether đến, còn address thì không.
 
-// Có thề ép kiểu ngầm định từ address payable thành address, nhưng chiều ngược lại thì phải ép kiểu tường minh qua: payable(<address>)
+// Có thề ép kiểu ngầm định từ address payable thành address, nhưng 
+// chiều ngược lại thì phải ép kiểu tường minh qua: payable(<address>)
 address payable a = address(0x123);
 address b = a;
 address payable c = payable(b);
 
-// Cũng có thể ép kiểu tường minh từ address thành uint160, kiểu số nguyên integer, bytes20 và contract.
+// Cũng có thể ép kiểu tường minh từ address thành uint160, kiểu 
+// số nguyên integer, bytes20 và contract.
 
 // Members of Addresses
 //// balance và transfer
 address payable x = address(0x123);
 address myAddress = address(this);
 if (x.balance < 10 && myAddress.balance >= 10) x.transfer(10);
-//==> Hàm transfer sẽ fail nếu balance của contract không đủ lớn hoặc nếu Ether chuyển đi bị tài khoản nhận từ chối thì việc hoàn tiền của hàm transfer sẽ bị lỗi --> contract sẽ bị dừng với 1 exeption.
+//==> Hàm transfer sẽ fail nếu balance của contract không đủ lớn hoặc 
+// nếu Ether chuyển đi bị tài khoản nhận từ chối thì việc hoàn tiền 
+// của hàm transfer sẽ bị lỗi --> contract sẽ bị dừng với 1 exeption.
 
-//// send : là 1 hàm cấp thấp của transfer. Nếu thực thi fail, thì contarct hiện tại sẽ không bị dừng với 1 exeption. Hàm send sẽ trả về false. --> dùng không cẩn thận sẽ loop stack dẫn đến bị tràn stack.
+//// send : là 1 hàm cấp thấp của transfer. Nếu thực thi fail, thì 
+// contarct hiện tại sẽ không bị dừng với 1 exeption. Hàm send sẽ trả 
+// về false. --> dùng không cẩn thận sẽ loop stack dẫn đến bị tràn stack.
 
-//// call, delegatecall và staticcall : các hàm cấp thấp này được cung cấp để làm việc trực tiếp với contract khi không theo chuẩn ABI. --> không nên dùng.
+//// call, delegatecall và staticcall : các hàm cấp thấp này được 
+// cung cấp để làm việc trực tiếp với contract khi không theo chuẩn 
+// ABI. --> không nên dùng.
 
 
 // 3.4. Contract : có biễu diễn dữ liệu giống kiểu address
 //// contract có thể được ép kiểu ngầm định thành contract mà nó kế thừa.
 //// contract có thể được ép kiểu tường minh thành address, và ngượi lại.
-//// contract chỉ có thể ép kiểu tường minh thành address payable và ngược lại, nếu contract đó có hàm receive hoặc payable fallback. Nếu contract không có hàm receive hoặc payable fallback thì để ép kiểu thành address payable ta có thể dùng: payable(address(x)).
+//// contract chỉ có thể ép kiểu tường minh thành address payable và 
+// ngược lại, nếu contract đó có hàm receive hoặc payable fallback. 
+// Nếu contract không có hàm receive hoặc payable fallback thì để ép kiểu 
+// thành address payable ta có thể dùng: payable(address(x)).
 
 
 // 3.5. Fixed-size byte arrays
@@ -155,7 +168,8 @@ string s3 = hex"00112233" hex"44556677"; // == hex"0011223344556677"
 
 
 // 3.10. Reference Types
-//// Reference Types là các kiểu tham chiếu mà giá trị sẽ được thay đổi thông qua nhiều cái tên khác nhau. 
+//// Reference Types là các kiểu tham chiếu mà giá trị sẽ được 
+// thay đổi thông qua nhiều cái tên khác nhau. 
 //// Các kiểu tham chiếu bao gồm: struct, array, map.
 
 // 3.10.1. Data location
@@ -250,8 +264,8 @@ contract DeleteExample {
         delete x; // sets x to 0, does not affect data
         delete data; // sets data to 0, does not affect x
         uint[] storage y = dataArray;
-        delete dataArray; // this sets dataArray.length to zero, but as uint[] is a complex object, also
-        // y is affected which is an alias to the storage object
+        delete dataArray; // this sets dataArray.length to zero, but as uint[] is a 
+        // complex object, also y is affected which is an alias to the storage object
         // On the other hand: "delete y" is not valid, as assignments to local variables
         // referencing storage objects can only be made from existing storage objects.
         assert(y.length == 0);
@@ -262,16 +276,19 @@ contract DeleteExample {
 ### 5. Data Structure
 ```go
 // 5.1. Enum
-//// Enum không thể có nhiều hơn 256 thành phần. Thứ tự các options của Enum là số nguyên không dấu bắt đầu từ 0.
+//// Enum không thể có nhiều hơn 256 thành phần. Thứ tự các options  
+// của Enum là số nguyên không dấu bắt đầu từ 0.
 enum State { Created, Locked, Inactive } // Enum
 State constant defaultState = State.Inactive;
 
 
 // 5.2. Array
-//// Array có thể có kích thước cố định trong thời gian biên dịch hoặc chúng có thể có kích thước động.
+//// Array có thể có kích thước cố định trong thời gian biên dịch 
+// hoặc chúng có thể có kích thước động.
 //// Array có kích thước cố định k khi khai báo: a[k]
 //// Array có kích thước động khi khai báo: a[]
-uint[][] memory X = new uint[][5] // Khai báo 1 mảng chứa 5 mảng động. Cách khai báo ngược so với 1 số ngôn ngữ khác.
+uint[][] memory X = new uint[][5] // Khai báo 1 mảng chứa 5 mảng động. 
+// Cách khai báo ngược so với 1 số ngôn ngữ khác.
 //// Chỉ mục mảng bắt đầu từ 0 và được truy suất ngược với khai báo.
 X[2][6] // Truy suất đến phần tử thứ 7 trong mảng động thứ 3.
 X[2] // Truy suất đến toàn bộ mảng động thứ 3.
@@ -287,26 +304,34 @@ function f(uint len) public pure {
     assert(b.length == len);
     a[6] = 8;
 }
-//// Không thể gán các mảng bộ nhớ có kích thước cố định (memory arrays) cho các mảng bộ nhớ có kích thước động (dynamically-sized memory arrays).
-uint[] memory x = [uint(1), 3, 4]; // ==> Error: uint[3] memory cannot be converted to uint[] memory.
-//// Nếu bạn muốn khởi tạo mảng có kích thước động, bạn phải gán các phần tử riêng lẻ:
+//// Không thể gán các mảng bộ nhớ có kích thước cố định (memory arrays) 
+// cho các mảng bộ nhớ có kích thước động (dynamically-sized memory arrays).
+// ==> Error: uint[3] memory cannot be converted to uint[] memory.
+uint[] memory x = [uint(1), 3, 4]; 
+
+//// Nếu bạn muốn khởi tạo mảng có kích thước động, bạn phải gán các 
+// phần tử riêng lẻ:
 uint[] memory x = new uint[](3); // Cấp phát mảng động có kích thước là 3.
 x[0] = 1;
 x[1] = 3;
 x[2] = 4;
 
 
-// b) Array Members : Các phương thức áp dụng cho Dynamic storage arrays và bytes.
+// b) Array Members : Các phương thức áp dụng cho Dynamic storage arrays 
+// và bytes.
 /**
-length : chiều dài mảng.
-push() : Thêm 1 phần tử có giá trị khởi tạo của kiểu và cuối mảng, trả về tham chiếu đến phần tử đó. Nên có thể được dùng như sau: x.push().t = 2 hoặc x.push() = b
-push(x) : Thêm phần tử x vào cuối mảng, không trả về gì cả.
-pop : Dùng để xóa phần tử ở cuối mảng.
+- length : chiều dài mảng.
+- push() : Thêm 1 phần tử có giá trị khởi tạo của kiểu và cuối mảng, 
+trả về tham chiếu đến phần tử đó. Nên có thể được dùng như sau: 
+x.push().t = 2 hoặc x.push() = b
+- push(x) : Thêm phần tử x vào cuối mảng, không trả về gì cả.
+- pop : Dùng để xóa phần tử ở cuối mảng.
 */
 
 
 // c) Array Slices
-//// x[start:end] khi phần tử đầu tiên là x[start], còn phần tử cuối là x[end - 1]. start mặc định là 0, end mặc định là chiều dài mảng.
+//// x[start:end] khi phần tử đầu tiên là x[start], còn phần tử cuối 
+// là x[end - 1]. start mặc định là 0, end mặc định là chiều dài mảng.
 x[4:] // mảng từ phần tử thứ 4 đến cuối mảng.
 x[:4] // mảng từ đầu mảng đến phần tử thứ 4.
 
@@ -317,8 +342,11 @@ x[:4] // mảng từ đầu mảng đến phần tử thứ 4.
 //// _KeyType là các kiểu nguyên thủy, bytes, string, contract hoặc enum.
 //// _ValueType là một kiểu bất kỳ, bao gồm: map, array, struct. 
 
-// Map chỉ được lưu trữ ở dạng storage, được dùng để lưu trữ trạng thái (state), kiểu tham chiếu storage trong hàm hoặc tham số của các thư viện hàm.
-// Map không được sử dụng làm tham số hoặc giá trị trả về của các hàm trong contract được công khai (public). Điều này cũng áp dụng cho array và struct có chứa map.
+//// Map chỉ được lưu trữ ở dạng storage, được dùng để lưu trữ trạng thái 
+// (state), kiểu tham chiếu storage trong hàm hoặc tham số của các thư viện hàm.
+//// Map không được sử dụng làm tham số hoặc giá trị trả về của các hàm 
+// trong contract được công khai (public). Điều này cũng áp dụng cho array 
+// và struct có chứa map.
 
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.4.22 <0.9.0;
@@ -515,29 +543,42 @@ contract CrowdFunding {
 
 ### 6. Loop
 ```go
-// Các cấu trúc điều khiển như: if, else, while, do, for, break, continue, return đều tương tự như ngôn ngữ C và JavaScript.
+// Các cấu trúc điều khiển như: if, else, while, do, for, break, 
+// continue, return đều tương tự như ngôn ngữ C và JavaScript.
 ```
 
 ### 7. Function
 ```go
 // Function có 2 loại: internal và external functions.
-// internal function : Các hàm nội bộ chỉ có thể được gọi bên trong hợp đồng (contract) hiện tại (cụ thể hơn, bên trong đơn vị mã hiện tại, cũng bao gồm các hàm thư viện nội bộ và các hàm kế thừa).
-// external function : Các hàm bên ngoài bao gồm một địa chỉ và một chữ ký hàm và chúng có thể được chuyển qua và trả về từ các lệnh gọi hàm bên ngoài.
+//// internal function : Các hàm nội bộ chỉ có thể được gọi bên trong 
+// hợp đồng (contract) hiện tại (cụ thể hơn, bên trong đơn vị mã hiện 
+// tại, cũng bao gồm các hàm thư viện nội bộ và các hàm kế thừa).
+//// external function : Các hàm bên ngoài bao gồm một địa chỉ và một 
+// chữ ký hàm và chúng có thể được chuyển qua và trả về từ các lệnh 
+// gọi hàm bên ngoài.
 function (<parameter types>) {internal|external} [pure|view|payable] [returns (<return types>)]{
     // do something...
 }
 // Nếu hàm không trả về gì thì toàn bộ returns (<return types>) sẽ được bỏ đi.
 // Mặc định hàm là internal, nên từ khóa internal có thể bỏ qua.
 
-// Hàm A được chuyển đổi ngầm định qua hàm B khi và chỉ khi chúng có: tham số đầu vào giống nhau, kiểu trả về giống nhau, thuộc tính internal/external giống nhau, khả năng đột biến trạng thái (the state mutability) của A hạn chế hơn khả năng đột biến trạng thái của B. Cụ thể:
+// Hàm A được chuyển đổi ngầm định qua hàm B khi và chỉ khi chúng có: 
+// tham số đầu vào giống nhau, kiểu trả về giống nhau, thuộc tính 
+// internal/external giống nhau, khả năng đột biến trạng thái 
+// (the state mutability) của A hạn chế hơn khả năng đột biến trạng thái 
+// của B. Cụ thể :
 //// pure có thể chuyển đổi thành view và non-payable.
 //// view có thể chuyển đổi thành non-payable.
 //// payable có thể chuyển đổi thành non-payable.
 
-// Nếu 1 hàm là payable, có nghĩa là nó cũng chấp nhận thanh toán bằng 0 Ether, vì vậy nó cũng không phải là khoản thanh toán.
-// Ngược lại, 1 hàm là non-payable, nó sẽ từ chối Ether được gửi đến nó, vì vậy hàm non-payable không thể chuyển đổi thành hàm payable.
+//// Nếu 1 hàm là payable, có nghĩa là nó cũng chấp nhận thanh toán bằng 
+// 0 Ether, vì vậy nó cũng không phải là khoản thanh toán.
+//// Ngược lại, 1 hàm là non-payable, nó sẽ từ chối Ether được gửi đến nó, 
+// vì vậy hàm non-payable không thể chuyển đổi thành hàm payable.
 
-// Hàm public f có thể được dùng trong cả internal và external function. Nếu f được dùng trong hàm internal thì sử dụng f, còn dùng trong hàm external thì dùng this.f.
+// Hàm public f có thể được dùng trong cả internal và external function. 
+// Nếu f được dùng trong hàm internal thì sử dụng f, còn dùng trong hàm 
+// external thì dùng this.f.
 
 // Nếu 1 hàm là External hoặc public thì có các thuộc tính sau:
 //// .address : trả về địa chỉ của hợp đồng (contract) của hàm.
