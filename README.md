@@ -513,4 +513,33 @@ contract CrowdFunding {
 
 ```
 
+### 6. Loop
+```go
+// Các cấu trúc điều khiển như: if, else, while, do, for, break, continue, return đều tương tự như ngôn ngữ C và JavaScript.
+```
 
+### 7. Function
+```go
+// Function có 2 loại: internal và external functions.
+// internal function : Các hàm nội bộ chỉ có thể được gọi bên trong hợp đồng (contract) hiện tại (cụ thể hơn, bên trong đơn vị mã hiện tại, cũng bao gồm các hàm thư viện nội bộ và các hàm kế thừa).
+// external function : Các hàm bên ngoài bao gồm một địa chỉ và một chữ ký hàm và chúng có thể được chuyển qua và trả về từ các lệnh gọi hàm bên ngoài.
+function (<parameter types>) {internal|external} [pure|view|payable] [returns (<return types>)]{
+    // do something...
+}
+// Nếu hàm không trả về gì thì toàn bộ returns (<return types>) sẽ được bỏ đi.
+// Mặc định hàm là internal, nên từ khóa internal có thể bỏ qua.
+
+// Hàm A được chuyển đổi ngầm định qua hàm B khi và chỉ khi chúng có: tham số đầu vào giống nhau, kiểu trả về giống nhau, thuộc tính internal/external giống nhau, khả năng đột biến trạng thái (the state mutability) của A hạn chế hơn khả năng đột biến trạng thái của B. Cụ thể:
+//// pure có thể chuyển đổi thành view và non-payable.
+//// view có thể chuyển đổi thành non-payable.
+//// payable có thể chuyển đổi thành non-payable.
+
+// Nếu 1 hàm là payable, có nghĩa là nó cũng chấp nhận thanh toán bằng 0 Ether, vì vậy nó cũng không phải là khoản thanh toán.
+// Ngược lại, 1 hàm là non-payable, nó sẽ từ chối Ether được gửi đến nó, vì vậy hàm non-payable không thể chuyển đổi thành hàm payable.
+
+// Hàm public f có thể được dùng trong cả internal và external function. Nếu f được dùng trong hàm internal thì sử dụng f, còn dùng trong hàm external thì dùng this.f.
+
+// Nếu 1 hàm là External hoặc public thì có các thuộc tính sau:
+//// .address : trả về địa chỉ của hợp đồng (contract) của hàm.
+//// .selector : trả về ABI function selector
+```
