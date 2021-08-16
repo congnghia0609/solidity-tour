@@ -200,15 +200,16 @@ contract C {
     // The data location of memoryArray is memory.
     function f(uint[] memory memoryArray) public {
         x = memoryArray; // works, copies the whole array to storage
-        uint[] storage y = x; // works, assigns a pointer, data location of y is storage
+        uint[] storage y = x; // works, assigns a pointer, data location of 
+        // y is storage
         y[7]; // fine, returns the 8th element
         y.pop(); // fine, modifies x through y
         delete x; // fine, clears the array, also modifies y
-        // The following does not work; it would need to create a new temporary /
+        // The following does not work; it would need to create a new temporary
         // unnamed array in storage, but storage is "statically" allocated:
         // y = memoryArray;
-        // This does not work either, since it would "reset" the pointer, but there
-        // is no sensible location it could point to.
+        // This does not work either, since it would "reset" the pointer, 
+        // but there is no sensible location it could point to.
         // delete y;
         g(x); // calls g, handing over a reference to x
         h(x); // calls h and creates an independent, temporary copy in memory
@@ -264,10 +265,11 @@ contract DeleteExample {
         delete x; // sets x to 0, does not affect data
         delete data; // sets data to 0, does not affect x
         uint[] storage y = dataArray;
-        delete dataArray; // this sets dataArray.length to zero, but as uint[] is a 
-        // complex object, also y is affected which is an alias to the storage object
-        // On the other hand: "delete y" is not valid, as assignments to local variables
-        // referencing storage objects can only be made from existing storage objects.
+        delete dataArray; // this sets dataArray.length to zero, but as 
+        // uint[] is a complex object, also y is affected which is an 
+        // alias to the storage object. On the other hand: "delete y" 
+        // is not valid, as assignments to local variables referencing 
+        // storage objects can only be made from existing storage objects.
         assert(y.length == 0);
     }
 }
@@ -359,17 +361,20 @@ contract MappingExample {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
-    function allowance(address owner, address spender) public view returns (uint256) {
+    function allowance(address owner, address spender) public view 
+        returns (uint256) {
         return _allowances[owner][spender];
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public 
+        returns (bool) {
         _transfer(sender, recipient, amount);
         approve(sender, msg.sender, amount);
         return true;
     }
 
-    function approve(address owner, address spender, uint256 amount) public returns (bool) {
+    function approve(address owner, address spender, uint256 amount) public 
+        returns (bool) {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -402,7 +407,8 @@ struct itmap {
 }
 
 library IterableMapping {
-    function insert(itmap storage self, uint key, uint value) internal returns (bool replaced) {
+    function insert(itmap storage self, uint key, uint value) internal 
+        returns (bool replaced) {
         uint keyIndex = self.data[key].keyIndex;
         self.data[key].value = value;
         if (keyIndex > 0)
@@ -417,7 +423,8 @@ library IterableMapping {
         }
     }
 
-    function remove(itmap storage self, uint key) internal returns (bool success) {
+    function remove(itmap storage self, uint key) internal 
+        returns (bool success) {
         uint keyIndex = self.data[key].keyIndex;
         if (keyIndex == 0)
             return false;
@@ -426,26 +433,31 @@ library IterableMapping {
         self.size --;
     }
 
-    function contains(itmap storage self, uint key) internal view returns (bool) {
+    function contains(itmap storage self, uint key) internal view 
+        returns (bool) {
         return self.data[key].keyIndex > 0;
     }
 
-    function iterate_start(itmap storage self) internal view returns (uint keyIndex) {
+    function iterate_start(itmap storage self) internal view 
+        returns (uint keyIndex) {
         return iterate_next(self, type(uint).max);
     }
 
-    function iterate_valid(itmap storage self, uint keyIndex) internal view returns (bool) {
+    function iterate_valid(itmap storage self, uint keyIndex) internal view 
+        returns (bool) {
         return keyIndex < self.keys.length;
     }
 
-    function iterate_next(itmap storage self, uint keyIndex) internal view returns (uint r_keyIndex) {
+    function iterate_next(itmap storage self, uint keyIndex) internal view 
+        returns (uint r_keyIndex) {
         keyIndex++;
         while (keyIndex < self.keys.length && self.keys[keyIndex].deleted)
             keyIndex++;
         return keyIndex;
     }
 
-    function iterate_get(itmap storage self, uint keyIndex) internal view returns (uint key, uint value) {
+    function iterate_get(itmap storage self, uint keyIndex) internal view 
+        returns (uint key, uint value) {
         key = self.keys[keyIndex].key;
         value = self.data[key].value;
     }
@@ -510,10 +522,12 @@ contract CrowdFunding {
     uint numCampaigns;
     mapping (uint => Campaign) campaigns;
 
-    function newCampaign(address payable beneficiary, uint goal) public returns (uint campaignID) {
+    function newCampaign(address payable beneficiary, uint goal) public 
+        returns (uint campaignID) {
         campaignID = numCampaigns++; // campaignID is return variable
         // We cannot use "campaigns[campaignID] = Campaign(beneficiary, goal, 0, 0)"
-        // because the right hand side creates a memory-struct "Campaign" that contains a mapping.
+        // because the right hand side creates a memory-struct 
+        // "Campaign" that contains a mapping.
         Campaign storage c = campaigns[campaignID];
         c.beneficiary = beneficiary;
         c.fundingGoal = goal;
@@ -521,14 +535,15 @@ contract CrowdFunding {
 
     function contribute(uint campaignID) public payable {
         Campaign storage c = campaigns[campaignID];
-        // Creates a new temporary memory struct, initialised with the given values
-        // and copies it over to storage.
+        // Creates a new temporary memory struct, initialised with 
+        // the given values and copies it over to storage.
         // Note that you can also use Funder(msg.sender, msg.value) to initialise.
         c.funders[c.numFunders++] = Funder({addr: msg.sender, amount: msg.value});
         c.amount += msg.value;
     }
 
-    function checkGoalReached(uint campaignID) public returns (bool reached) {
+    function checkGoalReached(uint campaignID) public 
+        returns (bool reached) {
         Campaign storage c = campaigns[campaignID];
         if (c.amount < c.fundingGoal)
             return false;
@@ -556,7 +571,8 @@ contract CrowdFunding {
 //// external function : Các hàm bên ngoài bao gồm một địa chỉ và một 
 // chữ ký hàm và chúng có thể được chuyển qua và trả về từ các lệnh 
 // gọi hàm bên ngoài.
-function (<parameter types>) {internal|external} [pure|view|payable] [returns (<return types>)]{
+function (<parameter types>) {internal|external} [pure|view|payable] 
+    [returns (<return types>)]{
     // do something...
 }
 // Nếu hàm không trả về gì thì toàn bộ returns (<return types>) sẽ được bỏ đi.
