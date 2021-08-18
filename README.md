@@ -121,6 +121,7 @@ if (x.balance < 10 && myAddress.balance >= 10) x.transfer(10);
 // ABI. --> không nên dùng.
 
 
+
 // 3.4. Contract : có biễu diễn dữ liệu giống kiểu address
 //// contract có thể được ép kiểu ngầm định thành contract mà nó kế thừa.
 //// contract có thể được ép kiểu tường minh thành address, và ngượi lại.
@@ -128,6 +129,7 @@ if (x.balance < 10 && myAddress.balance >= 10) x.transfer(10);
 // ngược lại, nếu contract đó có hàm receive hoặc payable fallback. 
 // Nếu contract không có hàm receive hoặc payable fallback thì để ép kiểu 
 // thành address payable ta có thể dùng: payable(address(x)).
+
 
 
 // 3.5. Fixed-size byte arrays
