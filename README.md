@@ -33,7 +33,6 @@ import {symbol1 as alias, symbol2} from "filename";
 ### 2. Comments
 ```go
 // This is a single-line comment.
-
 /*
 This is a
 multi-line comment.
@@ -44,6 +43,7 @@ multi-line comment.
 ```go
 // 3.1. Booleans
 bool b = true; // false
+
 
 
 // 3.2. Integers
@@ -85,6 +85,7 @@ uint256 ui256 = 256; // 256 bits
 int x = 0;
 int min = type(x).min;
 int max = type(x).max;
+
 
 
 // 3.3. Address - có 2 loại.
