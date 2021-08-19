@@ -136,9 +136,11 @@ if (x.balance < 10 && myAddress.balance >= 10) x.transfer(10);
 bytes1, bytes2, bytes3, ..., bytes32
 
 
+
 // 3.6. Dynamically-sized byte array
 bytes b; // Dynamically-sized byte array
 string s; // Dynamically-sized UTF-8-encoded string
+
 
 
 // 3.7. String Literals and Types
