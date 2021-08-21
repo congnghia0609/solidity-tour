@@ -162,8 +162,10 @@ string s3 = "foo" "bar"; // == "foobar"
 */
 
 
+
 // 3.8. Unicode Literals
 string memory a = unicode"Hello 😃";
+
 
 
 // 3.9. Hexadecimal Literals
